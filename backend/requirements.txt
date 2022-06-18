@@ -1,0 +1,6 @@
+Django
+celery
+pycopg2
+pika
+djangorestframework
+django-cors-headers
