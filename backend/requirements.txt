@@ -1,6 +1,9 @@
 Django
 celery
-pycopg2
+psycopg2
 pika
 djangorestframework
 django-cors-headers
+django-celery-beat
+django-celery-results
+channels

@@ -1,11 +1,11 @@
 from django.contrib import admin
 from . import models
 
-class ExchangeAdmin(admin.ModelAdmin):
-    list_display = ['name']
+class SymbolAdmin(admin.ModelAdmin):
+    list_display = ['exchange', 'symbol_name', 'last_price']
 
 # Register your models here.
 
 
-admin.site.register(models.Exchange, ExchangeAdmin)
+admin.site.register(models.Symbol, SymbolAdmin)
 

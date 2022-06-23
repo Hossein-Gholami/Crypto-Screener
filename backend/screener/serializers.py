@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from .models import Pair
+from .models import Symbol
 
 
-class PairSerializer(serializers.ModelSerializer):
+class SymbolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pair
+        model = Symbol
         fields = '__all__'
+        # exclude = ('exchange')
 
