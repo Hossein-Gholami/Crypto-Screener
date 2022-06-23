@@ -1,20 +1,22 @@
 # Crypto-Screener
 Fetches crypto prices with a specified interval
 
-This project is an illustration on how-to:
+The main functionality in place
+![Alt screener](asset/screen1.gif?raw=true "Screener")
+
+
+This project is an illustration on:
 - django and react integration
 - celery with django
-- django channel
-- dockerize these components
+- django channels
 
-### Use Case
+### Usage
 user subscribes to some pairs so their prices shall be fetched
-default coins: [Bitcoin, Ether, Solana]
-these prices will be fetched every 5 or so minutes
+these prices will be fetched every 10 seconds
 
 ### Technologies
-- Django (django-rest-framework, django-channel)
+- Django (django-rest-framework, django-channels)
 - PostgreSql
-- Celery
+- Celery and Celery beat
 - RabbitMQ
 - React (react-router, react-redux)
