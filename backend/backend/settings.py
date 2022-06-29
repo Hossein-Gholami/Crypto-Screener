@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-so&h64%^^$m(*a-yc$@d0zlhifww_oob^-7_ui5flkmz8&rpn^'
+SECRET_KEY = os.environ.get("SRCRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -140,10 +143,15 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000',
-]
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 1
+
+APP_SPECIFIC_KEYS = {
+    'screener' : {
+        'tickers': 'tickers',
+    }
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -151,14 +159,23 @@ REST_FRAMEWORK = {
     ]
 }
 
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
+]
+
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", 'amqp://guest:guest@localhost:5672/')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", 'redis://localhost:6379/0')
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task": {
-        "task": "screener.tasks.fetch_last_prices",
+        "task": "screener.tasks.fetch_publish_tickers",
         "schedule": 10.0,
         # "args": (10, 10),
-    }
+    },
+    "scheduled_db_update": {
+        "task": "screener.tasks.db_update_tickers",
+        "schedule": 1*60.,
+    },
 }
 
 ASGI_APPLICATION = 'backend.routing.application'

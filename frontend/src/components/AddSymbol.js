@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
-import { Col, Container, Form, Row, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import { addSymbol } from '../actions/symbolActions'
+
+import { addTicker } from '../actions/ScreenerActions'
 
 function AddSymbol() {
 
@@ -19,28 +20,25 @@ function AddSymbol() {
     // }, [dispatch, setSymbol])
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        const symbol = { name }
-        // console.log(symbol)
+        e.preventDefault()
+        const ticker = {name}
         setName('')
-        dispatch(addSymbol(symbol))
+        dispatch(addTicker(ticker))
         navigate("/", { replace: true })
     }
 
     return (
-        <Container>
+        <Container className="py-3">
             <Form method="post" onSubmit={handleSubmit}>
-                <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
-                    <Form.Label column sm={2}>
-                        Symbol
-                    </Form.Label>
+                <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm={2}>Ticker: </Form.Label>
                     <Col sm={10}>
-                        <Form.Control type="text" placeholder="Symbol Name" value={name} onChange={(e) => setName(e.target.value)} required />
+                        <Form.Control type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ticker Name" required/>
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3">
-                    <Col sm={{ span: 10, offset: 2 }}>
-                        <Button type="submit">Add</Button>
+                    <Col sm={{ span:10, offset:2 }}>
+                        <Button type="submit">Subscribe</Button>
                     </Col>
                 </Form.Group>
             </Form>

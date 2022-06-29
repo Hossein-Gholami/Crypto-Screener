@@ -1,13 +1,14 @@
 import { Container } from 'react-bootstrap'
 
-function Footer() {
-    return (
-        <footer>
-          <Container>
-            Copyright &copy; Hosseinreza Gholami
-          </Container>
-        </footer>
-    )
+
+const Footer = () => {
+  return (
+    <footer>
+      <Container style={{textAlign: 'center'}}>
+        Copyright &copy; Hosseinreza <strong>Gholami</strong>
+      </Container>
+    </footer>
+  )
 }
 
 export default Footer;

@@ -1,24 +1,20 @@
-import { useRef, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Container, ListGroup } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
-import { updateTickers } from '../actions/symbolActions'
+
+import { updateTickers } from '../actions/ScreenerActions'
 
 function HomeScreen() {
-
-  const JustMounted = useRef(true)
-  const dispatch = useDispatch()
   const { tickers } = useSelector(state => state.screener)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    if (JustMounted.current) {
-      JustMounted.current = false
-      console.error('JUST MOUNTED')
-    }
+
     const socketClient = new W3CWebSocket('ws://127.0.0.1:8000/ws/screener/')
 
     socketClient.onopen = () => {
-      console.log('WebSocket Client Connected');
+      console.log('WebSocket client connected');
     }
 
     socketClient.onclose = () => {
@@ -33,28 +29,24 @@ function HomeScreen() {
       dispatch(updateTickers(data))
     }
 
-  }, [dispatch, JustMounted])
+  }, [dispatch])
 
   return (
-    <Container>
-      <div>
-        {Object.keys(tickers).map((key, index) => {
-          return (
-            <ListGroup.Item key={index} as="li" className="d-flex justify-content-between align-items-start">
-              <div className="ms-2 me-auto">
-                <div className="fw-bold">{key}</div>
-                {tickers[key]}
-              </div>
-              {/* <Badge bg="primary" pill>
-              14
-            </Badge> */}
-            </ListGroup.Item>
-          );
-        })}
-
-      </div>
+    <Container md={6} my={3}>
       <ListGroup as="ul" variant="flush">
-
+      {Object.keys(tickers).map((key,index) => {
+        return (
+          <ListGroup.Item key={index} as="li" className="d-flex justify-content-between align-items-start">
+            <div className="ms-2 me-auto">
+              <div className="fw-bold">{key}</div>
+              {tickers[key]}
+            </div>
+            {/*<Badge bg="primary" pill>
+              14
+            </Badge>*/}
+          </ListGroup.Item>
+        );
+      })}
       </ListGroup>
     </Container>
   )

@@ -5,8 +5,8 @@ from . import views
 app_name = "screener"
 
 urlpatterns = [
-    path('stat/', views.getStat, name='stat'),
-    path('add/', views.addSymbol, name='add_symbol'),
+    # path('stat/', views.getStat, name='stat'),
+    path('add/', views.add, name='add_symbol'),
     # path('del/<str:id>/', views.delSymbol, name='del_symbol'),
     # path('/', views.index, name='index'),
     

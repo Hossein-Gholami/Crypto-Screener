@@ -2,7 +2,7 @@ from django.contrib import admin
 from . import models
 
 class SymbolAdmin(admin.ModelAdmin):
-    list_display = ['exchange', 'symbol_name', 'last_price']
+    list_display = ['name', 'price']
 
 # Register your models here.
 

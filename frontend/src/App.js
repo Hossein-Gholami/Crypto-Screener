@@ -11,9 +11,9 @@ function App() {
     <Router>
       <Header />
         <main>
-        <Routes>
-          <Route index element={<HomeScreen />} />
-          <Route path="/add" element={<AddSymbol />} />
+          <Routes>
+            <Route index element={<HomeScreen />} />
+            <Route path="/add" element={<AddSymbol />} />
           </Routes>
         </main>
       

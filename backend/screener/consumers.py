@@ -3,7 +3,7 @@ from django.conf import settings
 from channels.generic.websocket import AsyncWebsocketConsumer
 from . import tasks
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class ScreenerConsumer(AsyncWebsocketConsumer):
     group_name = settings.STREAM_SOCKET_GROUP_NAME
 
     async def connect(self):
@@ -20,7 +20,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-        tasks.fetch_last_prices.apply_async()
+        tasks.fetch_publish_tickers.apply_async()
 
         await self.accept()
 
@@ -48,7 +48,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #         'name': name
     #     }))
 
-    async def send_prices(self, event):
+    async def send_tickers(self, event):
         await self.send(text_data=json.dumps({
             'tickers': event['tickers']
         }))

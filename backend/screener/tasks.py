@@ -5,34 +5,40 @@ from celery import shared_task
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from screener import binance, symbols
+from screener import redis_client, binance, symbols
 from screener.models import Symbol
 
 @shared_task  # (name='fetchPrices')
-def fetch_last_prices():
+def fetch_publish_tickers():
     # ts = kucoin.fetch_tickers(symbols=['BTC/USDT', 'ETH/USDT'])
-    symbols = Symbol.objects.values_list('symbol_name', flat=True)
-    if len(symbols)==0:
-        return json.dumps({
-            'detail': 'no symbols in database'
-        })
+    # symbols = Symbol.objects.values_list('name', flat=True)
+    hash_key = settings.APP_SPECIFIC_KEYS['screener']['tickers']
+    tickers = redis_client.hgetall(hash_key)
+    
+    if len(tickers.keys())==0:
+        return { 'detail': 'No tickers been subscribed yet!' }
+    
+    tickers = {ticker.decode():float(tickers[ticker]) for ticker in tickers.keys()}
+    symbols = list(tickers.keys())
     tickers = binance.fetch_tickers(symbols=symbols)
-    last_prices = {symbol:tickers[symbol]['last'] for symbol in tickers.keys() }
-    db_update_last_prices(last_prices)
+    tickers = {symbol:tickers[symbol]['last'] for symbol in tickers.keys()}
+
     async_to_sync(get_channel_layer().group_send)(
         settings.STREAM_SOCKET_GROUP_NAME,
         {
-            'type': 'send_prices',
-            'tickers': json.dumps(last_prices),
+            'type': 'send_tickers',
+            'tickers': tickers,
         }
     )
-    return json.dumps(last_prices)
 
-def db_update_last_prices(last_prices):
-    for _symbol in last_prices.keys():
-        symbol = Symbol.objects.get(symbol_name=_symbol)
-        symbol.last_price = last_prices[_symbol]
-        symbol.save()
+    redis_client.hset(hash_key, mapping=tickers)
+
+    return { 'tickers': tickers }
+
+@shared_task
+def db_update_tickers():
+    Symbol.update_prices()
+    return {'detail': 'Database is up-to-date!'}
 
 # @shared_task  # (name='add_nums')
 # def add(x,y):

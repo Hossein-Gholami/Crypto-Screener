@@ -1,5 +1,6 @@
 # from django.shortcuts import render
 # from django.http import HttpResponse
+from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,28 +10,37 @@ from rest_framework import status
 
 from .serializers import SymbolSerializer
 from .models import Symbol
-from screener import binance, symbols
+from screener import redis_client, binance, symbols
 
 # Create your views here.
 
-@api_view(['GET'])
-def getStat(request):
-    symbols = Symbol.objects.all()
-    serializer = SymbolSerializer(symbols, many=True)
-    return Response(serializer.data)
+# @api_view(['GET'])
+# def getStat(request):
+#     symbols = Symbol.objects.all()
+#     serializer = SymbolSerializer(symbols, many=True)
+#     return Response(serializer.data)
 
 @api_view(['POST'])
-def addSymbol(request):
+def add(request):
     data = request.data
-    if data['name'] not in symbols:
-        message = {'detail':'Binance doesn\' have this pair!'}
+    name = data['name']
+    if name not in symbols:
+        message = {'detail': 'binance doesn\'t have this pair.'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
-    _symbol = None
-    if data['name'] in Symbol.objects.values_list('symbol_name', flat=True):
-        _symbol = Symbol.objects.get(symbol_name=data['name'])
+
+    _symbol = Symbol.objects.filter(pk=name)
+    if not _symbol.exists():
+        price = binance.fetch_ticker(name)['last']
+        _symbol = Symbol.objects.create(name=name, price=price)
     else:
-        last_price = binance.fetch_ticker(data['name'])['last']
-        _symbol = Symbol.objects.create(symbol_name=data['name'], last_price=last_price)
+        _symbol = _symbol.get()
+
+    hash_key = settings.APP_SPECIFIC_KEYS['screener']['tickers']
+    tickers = redis_client.hgetall(hash_key)
+    tickers = {ticker.decode():float(tickers[ticker]) for ticker in tickers.keys()}
+    tickers[str(_symbol.name)] = float(_symbol.price)
+    redis_client.hset(hash_key, mapping=tickers)
+    
     serializer = SymbolSerializer(_symbol, many=False)
     return Response(serializer.data)
 
